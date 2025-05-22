@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: app
+    depends_on:
+      - postgres
+    environment:
+      - API_PORT=${API_PORT}
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:latest
+    user: postgres
+    container_name: postgresdb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "api", "-U", "postgres"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    environment:
+       POSTGRES_USER: "postgres"
+       POSTGRES_PASSWORD: "postgres"
+       POSTGRES_DB: "api"
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - general-network
+      
+    
+  
+volumes:
+  postgres_data:
+
+networks:
+  general-network:
+    driver: bridge
+  
