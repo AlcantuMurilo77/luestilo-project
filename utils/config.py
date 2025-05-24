@@ -1,9 +1,5 @@
 import os
 
-
-
-
-
 class Config:
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASS")
