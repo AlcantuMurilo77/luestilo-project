@@ -1,11 +1,15 @@
 import os 
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from database_services import get_engine
+from dotenv import load_dotenv
 from sqlalchemy import text
+load_dotenv(".env.test", override=True)
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from utils.config import Config
+
+from database_services import DatabaseRepository
 
 def test_database_connection():
-    engine = get_engine()
+    engine = DatabaseRepository(Config.url).engine
     try:
         with engine.connect() as conn:
             result = conn.execute(text("SELECT 1"))
