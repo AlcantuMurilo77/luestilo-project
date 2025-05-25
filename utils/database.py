@@ -18,3 +18,10 @@ except SQLAlchemyError as e:
     raise RuntimeError(f"[DB ERROR] Error conecting to PostgresDB: {e}")
 except Exception as e:
     raise RuntimeError(f"[UNEXPECTED ERROR] Unexpected error on initializing engie: {e}")
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
