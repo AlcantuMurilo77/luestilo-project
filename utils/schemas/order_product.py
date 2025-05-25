@@ -1,0 +1,19 @@
+from pydantic import BaseModel
+
+
+
+class OrderProductCreate(BaseModel):
+    order_id: int
+    product_id: int
+    quantity: int
+    unit_price: float
+
+class OrderProductRead(BaseModel):
+    id: int
+    order_id: int
+    product_id: int
+    quantity: int
+    unit_price: float
+
+    class Config: 
+        orm_mode = True
