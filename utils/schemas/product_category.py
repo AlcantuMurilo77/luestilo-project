@@ -1,6 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
-from datetime import datetime
+from pydantic import BaseModel, Field
 
 class ProductCategoryCreate(BaseModel):
     name: str = Field(..., min_length=3, 
