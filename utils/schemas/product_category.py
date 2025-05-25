@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class ProductCategoryCreate(BaseModel):
     name: str = Field(..., min_length=3, 
@@ -9,4 +9,4 @@ class ProductCategoryRead(BaseModel):
     name: set
 
     class Config:
-        orm_mode = True
+        model_config = ConfigDict(from_attributes=True)
