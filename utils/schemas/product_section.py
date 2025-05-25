@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 
-class ProductSecionCreate(BaseModel):
+class ProductSectionCreate(BaseModel):
     name: str = Field(min_length=3, max_length=60)
 
 class ProductSectionRead(BaseModel):
