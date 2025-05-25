@@ -15,5 +15,4 @@ class OrderProductRead(BaseModel):
     quantity: int
     unit_price: float
 
-    class Config: 
-        model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
