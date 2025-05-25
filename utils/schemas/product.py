@@ -15,3 +15,20 @@ class ProductCreate(BaseModel):
     bar_code: Optional[str] = Field(None, max_length=100)
     expiration_date: Optional[datetime] = None
     images: Optional[str] = None
+
+class ProductRead(BaseModel):
+    id: int
+    name: str
+    category_id: int
+    section_id: int
+    selling_price: float
+    initial_stock: int
+    cost: Optional[float]
+    availability: bool
+    description: Optional[str]
+    bar_code: Optional[str]
+    expiration_date: Optional[datetime]
+    images: Optional[str]
+
+    class Config:
+        orm_mode = True
