@@ -6,10 +6,10 @@ load_dotenv(".env.test", override=True)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from utils.config import Config
 
-from services.database_services import DatabaseRepository
+from utils.database import engine
 
 def test_database_connection():
-    engine = DatabaseRepository(Config.url).engine
+
     try:
         with engine.connect() as conn:
             result = conn.execute(text("SELECT 1"))
