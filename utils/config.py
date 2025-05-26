@@ -7,3 +7,4 @@ class Config:
     port = os.getenv("POSTGRES_PORT")
     db = os.getenv("POSTGRES_DB_NAME")
     url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+    api_port = os.getenv("API_PORT", 8080)

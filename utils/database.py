@@ -1,16 +1,15 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.exc import SQLAlchemyError
-from utils.config import Config
 from dotenv import load_dotenv
-
 load_dotenv(".env", override=True)
+from utils.config import Config
 
 try:
     engine = create_engine(Config.url, echo=False)
 
     with engine.connect() as connection:
-        connection.execute("SELECT 1")
+        connection.execute(text("SELECT 1"))
     
     SessionLocal = scoped_session(sessionmaker(bind=engine, autoflush=False, autocommit=False))
 

@@ -1,6 +1,5 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import ForeignKey, Column, DateTime, String, Integer, func, Boolean, Float
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy import ForeignKey, Column, DateTime, String, Integer, func, Boolean, Float, CheckConstraint
 
 Base = declarative_base()
 metadata = Base.metadata
@@ -15,22 +14,20 @@ class Client(Base):
     orders = relationship("Order", back_populates="client")
 
     def __repr__(self):
-        return f"<Client(id={self.id}, name='{self.name}', email='{self.email}, cpf='{self.cpf}')>"
+        return f"<Client(id={self.id}, name='{self.name}', email='{self.email}', cpf='{self.cpf}')>"
 
 class ProductCategory(Base):
-    __tablename__="product_categories"
+    __tablename__ = "product_categories"
 
     id = Column(Integer, primary_key=True,  autoincrement=True)
     name = Column(String(60), nullable=False, unique=True)
-
     products = relationship("Product", back_populates="category")
 
 class ProductSection(Base):
-    __tablename__="product_sections"
+    __tablename__ = "product_sections"
 
     id = Column(Integer, primary_key=True,  autoincrement=True)
     name = Column(String(60), nullable=False, unique=True)
-
     products = relationship("Product", back_populates="section")
 
 class Product(Base):
@@ -77,6 +74,10 @@ class OrderProduct(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Float, nullable=False)
+
+    __table_args__ = (
+        CheckConstraint('quantity > 0', name='check_quantity_positive'),
+    )
 
     order = relationship("Order", back_populates="products")
     product = relationship("Product")

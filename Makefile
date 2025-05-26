@@ -2,7 +2,7 @@
 
 test:
 	docker-compose --env-file .env.test up -d
-	docker-compose exec app python -m pytest -v --cov --cov-config=.coveragerc
+	docker-compose exec app python -m pytest -v 
 
 
 run:

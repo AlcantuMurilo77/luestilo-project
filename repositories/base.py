@@ -1,34 +1,43 @@
 from typing import TypeVar, Generic, Type
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import NoResultFound
 
 ModelType = TypeVar("ModelType")
 
 class BaseRepository(Generic[ModelType]):
 
-    def __init__(self, model: Type[ModelType]):
+    def __init__(self, model: Type[ModelType], session: Session):
         self.model = model
+        self.session = session
     
-    def get(self, db: Session, id: int) -> ModelType | None:
-        return db.query(self.model).filter(self.model.id == id).first()
+    def get(self, id: int) -> ModelType | None:
+        return self.session.query(self.model).filter(self.model.id == id).first()
     
-    def get_all(self, db: Session) -> list[ModelType]:
-        return db.query(self.model).all()
+    def get_all(self) -> list[ModelType]:
+        return self.session.query(self.model).all()
     
-    def create(self, db: Session, obj_in:dict) -> ModelType:
-        db_obj = self.model(**obj_in)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
+    def create(self, obj_in: ModelType) -> ModelType:
+        self.session.add(obj_in)
+        self.session.commit()
+        self.session.refresh(obj_in)
+        return obj_in
+    
+    def update(self, db_obj: ModelType, obj_in: dict) -> ModelType:
+        for key, value in obj_in.items():
+             setattr(db_obj, key, value)
+        self.session.commit()
+        self.session.refresh(db_obj)
         return db_obj
     
-    def update(self, db: Session, db_obj: ModelType, obj_in: dict) -> ModelType:
+    def update_by_id(self, id: int, obj_in: dict) -> ModelType:
+        db_obj = self.get(id)
+        if not db_obj:
+            raise ValueError("Object not found")
         for key, value in obj_in.items():
             setattr(db_obj, key, value)
-        db.commit()
-        db.refresh(db_obj)
+        self.session.commit()
+        self.session.refresh(db_obj)
         return db_obj
     
-    def delete(self, db: Session, db_obj: ModelType) -> None:
-        db.delete(db_obj)
-        db.commit()
+    def delete(self, db_obj: ModelType) -> None:
+        self.session.delete(db_obj)
+        self.session.commit()

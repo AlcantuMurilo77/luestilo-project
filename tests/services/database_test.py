@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from sqlalchemy import text
 load_dotenv(".env.test", override=True)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from utils.config import Config
 
 from utils.database import engine
 
