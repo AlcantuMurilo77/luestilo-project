@@ -1,6 +1,7 @@
+from datetime import datetime, timedelta
 import pytest
 from sqlalchemy.exc import IntegrityError
-from models.models import Order, Client
+from models.models import Order, Client, OrderProduct, Product, ProductCategory, ProductSection
 from repositories.order_repository import OrderRepository
 from repositories.client_repository import ClientRepository
 
@@ -88,3 +89,59 @@ def test_order_delete(order_repo, client):
 
     deleted = order_repo.get(order_id)
     assert deleted is None
+
+@pytest.mark.asyncio
+async def test_order_get_all_with_filters(
+    order_repo, client, db
+):
+    for o in await order_repo.get_all():
+        await order_repo.delete(o)
+    await order_repo.session.commit()
+
+    section = ProductSection(name="Seção A")
+    db.add(section)
+    category = ProductCategory(name="Categoria A")
+    db.add(category)
+    await db.commit()
+
+    prod1 = Product(name="Produto 1", category_id=category.id, section_id=section.id,
+                    cost=5, selling_price=10, initial_stock=5)
+    prod2 = Product(name="Produto 2", category_id=category.id, section_id=section.id,
+                    cost=7, selling_price=15, initial_stock=3)
+    db.add_all([prod1, prod2])
+    await db.commit()
+
+    now = datetime.timezone.utc()
+    order1 = Order(client_id=client.id, status="pending", created_at=now - timedelta(days=1))
+    order2 = Order(client_id=client.id, status="completed", created_at=now)
+    db.add_all([order1, order2])
+    await db.commit()
+
+
+    db.add_all([
+        OrderProduct(order_id=order1.id, product_id=prod1.id, quantity=1, unit_price=10),
+        OrderProduct(order_id=order2.id, product_id=prod2.id, quantity=2, unit_price=15),
+    ])
+    await db.commit()
+
+    filtered_by_id = await order_repo.get_all(order_id=order1.id)
+    assert len(filtered_by_id) == 1
+    assert filtered_by_id[0].id == order1.id
+
+
+    filtered_by_status = await order_repo.get_all(status="completed")
+    assert all(o.status == "completed" for o in filtered_by_status)
+
+    filtered_by_client = await order_repo.get_all(client_id=client.id)
+    assert all(o.client_id == client.id for o in filtered_by_client)
+
+
+    filtered_by_start = await order_repo.get_all(start_date=now - timedelta(hours=12))
+    assert all(o.created_at >= now - timedelta(hours=12) for o in filtered_by_start)
+
+    filtered_by_end = await order_repo.get_all(end_date=now - timedelta(hours=12))
+    assert all(o.created_at <= now - timedelta(hours=12) for o in filtered_by_end)
+
+
+    filtered_by_section = await order_repo.get_all(section_id=section.id)
+    assert all(any(op.product.section_id == section.id for op in o.products) for o in filtered_by_section)
