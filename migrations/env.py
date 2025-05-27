@@ -4,7 +4,7 @@ from sqlalchemy import pool
 from alembic import context
 from dotenv import load_dotenv
 import os
-load_dotenv(".env.test", override=True)
+load_dotenv(".env", override=True)
 from utils.config import Config
 from models.models import Base
 print("Banco para migração:", os.getenv("POSTGRES_DB_NAME"))
