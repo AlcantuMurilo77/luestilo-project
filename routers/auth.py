@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from utils.schemas.user import UserCreate, UserRead, Token
+from app.network.schemas.user import UserCreate, UserRead, Token
 from models.models import User
 from repositories.user_repository import UserRepository
 from core.security import hash_password, verify_password, create_access_token

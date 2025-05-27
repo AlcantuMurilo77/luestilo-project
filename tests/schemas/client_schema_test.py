@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from utils.schemas.client import ClientCreate
+from app.network.schemas.client import ClientCreate
 
 def test_valid_client_creation():
     client = ClientCreate(name="João",

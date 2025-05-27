@@ -4,6 +4,8 @@ from repositories.product_repository import ProductRepository
 from repositories.product_category_repository import ProductCategoryRepository
 from repositories.product_section_repository import ProductSectionRepository
 from app.network.schemas.product import ProductCreate
+from dotenv import load_dotenv
+load_dotenv(".env.test", override=True)
 
 @pytest.fixture
 def product_repo(db):

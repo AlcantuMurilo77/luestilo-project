@@ -5,6 +5,8 @@ from repositories.order_product_repository import OrderProductRepository
 from repositories.order_repository import OrderRepository
 from repositories.product_repository import ProductRepository
 from repositories.client_repository import ClientRepository
+from dotenv import load_dotenv
+load_dotenv(".env.test", override=True)
 
 @pytest.fixture
 def order_product_repo(db):

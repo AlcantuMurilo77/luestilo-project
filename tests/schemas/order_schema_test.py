@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from utils.schemas.order import OrderCreate
+from app.network.schemas.order import OrderCreate
 
 def test_valid_order_create():
     order = OrderCreate(client_id=1)

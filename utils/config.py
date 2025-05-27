@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-load_dotenv(".env", override=True)
+load_dotenv()
 class Config:
     user = os.getenv("POSTGRES_USER")
     password = os.getenv("POSTGRES_PASS")

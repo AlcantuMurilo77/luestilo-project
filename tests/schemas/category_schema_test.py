@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from utils.schemas.product_category import ProductCategoryCreate
+from app.network.schemas.product_category import ProductCategoryCreate
 
 def test_valid_category_create():
     category = ProductCategoryCreate(name="Food")

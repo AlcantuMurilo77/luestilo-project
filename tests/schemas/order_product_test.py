@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from utils.schemas.order_product import OrderProductCreate
+from app.network.schemas.order_product import OrderProductCreate
 
 def test_valid_order_product_create():
     item = OrderProductCreate(order_id=1, 

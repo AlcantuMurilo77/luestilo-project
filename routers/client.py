@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from utils.schemas.client import ClientRead, ClientCreate
+from app.network.schemas.client import ClientRead, ClientCreate
 from repositories.client_repository import ClientRepository
 from utils.database import get_db
 from models.models import Client

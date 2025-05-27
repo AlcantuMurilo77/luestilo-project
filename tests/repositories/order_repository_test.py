@@ -7,7 +7,8 @@ from repositories.product_category_repository import ProductCategoryRepository
 from repositories.product_section_repository import ProductSectionRepository
 from app.network.schemas.order import OrderCreate, OrderUpdate
 from app.network.schemas.order_product import OrderProductCreate
-
+from dotenv import load_dotenv
+load_dotenv(".env.test", override=True)
 
 @pytest.fixture
 def order_repo(db):

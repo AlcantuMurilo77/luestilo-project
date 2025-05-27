@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from utils.schemas.product import ProductCreate
+from app.network.schemas.product import ProductCreate
 from datetime import datetime
 
 def test_valid_product_creation():

@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from utils.schemas.product_section import ProductSectionCreate
+from app.network.schemas.product_section import ProductSectionCreate
 
 def test_valid_section_create():
     section = ProductSectionCreate(name="Hygiene")

@@ -1,7 +1,10 @@
+from dotenv import load_dotenv
 import pytest
 from sqlalchemy.exc import IntegrityError
 from models.models import Client
 from repositories.client_repository import ClientRepository
+from dotenv import load_dotenv
+load_dotenv(".env.test", override=True)
 
 @pytest.fixture
 def client_repo(db):

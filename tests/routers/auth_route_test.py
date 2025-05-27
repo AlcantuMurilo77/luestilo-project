@@ -2,11 +2,11 @@ import pytest
 from httpx import AsyncClient
 from fastapi import status
 from app import main
-from utils.database import override_get_db
+from utils.database import get_db
 
 @pytest.mark.asyncio
 async def test_register_user(async_client, async_session):
-    main.dependency_overrides[override_get_db] = lambda: async_session
+    main.dependency_overrides[get_db] = lambda: async_session
 
     payload = {
         "email": "test@example.com",
@@ -22,7 +22,7 @@ async def test_register_user(async_client, async_session):
 
 @pytest.mark.asyncio
 async def test_register_duplicate_user(async_client, async_session):
-    main.dependency_overrides[override_get_db] = lambda: async_session
+    main.dependency_overrides[get_db] = lambda: async_session
 
     payload = {
         "email": "duplicate@example.com",
@@ -37,7 +37,7 @@ async def test_register_duplicate_user(async_client, async_session):
 
 @pytest.mark.asyncio
 async def test_login_user(async_client, async_session):
-    main.dependency_overrides[override_get_db] = lambda: async_session
+    main.dependency_overrides[get_db] = lambda: async_session
 
     payload = {
         "email": "login@example.com",
@@ -60,7 +60,7 @@ async def test_login_user(async_client, async_session):
 
 @pytest.mark.asyncio
 async def test_login_invalid_credentials(async_client, async_session):
-    main.dependency_overrides[override_get_db] = lambda: async_session
+    main.dependency_overrides[get_db] = lambda: async_session
 
     login_data = {
         "username": "nonexistent@example.com",

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from utils.schemas.order import OrderCreate, OrderRead, OrderUpdate
+from app.network.schemas.order import OrderCreate, OrderRead, OrderUpdate
 from repositories.order_repository import OrderRepository
 from utils.database import get_db 
 

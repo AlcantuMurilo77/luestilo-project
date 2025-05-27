@@ -1,7 +1,7 @@
 import pytest
 from fastapi import status
 from app import main
-from utils.database import override_get_db
+from utils.database import get_db
 from repositories.product_repository import ProductRepository
 from models.models import Product  
 
@@ -10,7 +10,7 @@ def product_repo(session):
     return ProductRepository(session)
 
 def test_list_products(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     product_repo.create(Product(name="Prod1", price=10.0, available=True))
     product_repo.create(Product(name="Prod2", price=20.0, available=True))
@@ -23,7 +23,7 @@ def test_list_products(product_repo):
     assert any(p["name"] == "Prod2" for p in data)
 
 def test_create_product(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     payload = {
         "name": "New Product",
@@ -39,7 +39,7 @@ def test_create_product(product_repo):
     assert data["price"] == payload["price"]
 
 def test_create_product_invalid(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     payload = {
         "name": "",
@@ -51,7 +51,7 @@ def test_create_product_invalid(product_repo):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 def test_get_product(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     product = product_repo.create(Product(name="GetTest", price=15.0, available=True))
     response = main.test_client().get(f"/products/{product.id}")
@@ -60,14 +60,14 @@ def test_get_product(product_repo):
     assert data["id"] == product.id
 
 def test_get_product_not_found(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     response = main.test_client().get("/products/999999")
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json()["detail"] == "Produto não encontrado"
 
 def test_update_product(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     product = product_repo.create(Product(name="OldName", price=10.0, available=True))
     payload = {
@@ -84,7 +84,7 @@ def test_update_product(product_repo):
     assert data["available"] == payload["available"]
 
 def test_update_product_not_found(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     payload = {
         "name": "NoProduct",
@@ -97,14 +97,14 @@ def test_update_product_not_found(product_repo):
     assert response.json()["detail"] == "Produto não encontrado"
 
 def test_delete_product(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     product = product_repo.create(Product(name="ToDelete", price=10.0, available=True))
     response = main.test_client().delete(f"/products/{product.id}")
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 def test_delete_product_not_found(product_repo):
-    main.dependency_overrides[override_get_db] = lambda: product_repo.session
+    main.dependency_overrides[get_db] = lambda: product_repo.session
 
     response = main.test_client().delete("/products/999999")
     
