@@ -44,7 +44,6 @@ def test_client_get(client_repo):
     assert found.email == "get@test.com"
 
 def test_client_get_nonexistent(client_repo):
-
     found = client_repo.get(999999)
     assert found is None
 
@@ -53,28 +52,19 @@ def test_client_update(client_repo):
     created = client_repo.create(client)
     client_repo.session.commit()
 
-    updated = client_repo.update(created, {"name": "Client Updated"})
+    updated = client_repo.update(created.id, {"name": "Client Updated"})
     assert updated.name == "Client Updated"
     assert updated.id == created.id
 
-def test_client_update_by_id(client_repo):
-    client = Client(name="Cliente UpdId", email="upid@test.com", cpf="666.666.666-66")
-    created = client_repo.create(client)
-    client_repo.session.commit()
-
-    updated = client_repo.update_by_id(created.id, {"email": "newemail@test.com"})
-    assert updated.email == "newemail@test.com"
-    assert updated.id == created.id
-
-def test_client_update_by_id_nonexistent(client_repo):
-    with pytest.raises(ValueError):
-        client_repo.update_by_id(999999, {"name": "Nobody"})
+def test_client_update_nonexistent(client_repo):
+    result = client_repo.update(999999, {"name": "Nobody"})
+    assert result is None
 
 def test_client_delete(client_repo):
     client = Client(name="Client Del", email="del@test.com", cpf="777.777.777-77")
     created = client_repo.create(client)
     client_repo.session.commit()
 
-    client_repo.delete(created)
+    client_repo.delete(created.id)
     deleted = client_repo.get(created.id)
     assert deleted is None

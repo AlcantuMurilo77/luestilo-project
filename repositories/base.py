@@ -35,7 +35,7 @@ class BaseRepository(Generic[ModelType]):
     def delete(self, id: int) -> None:
         db_obj = self.session.query(self.model).get(id)
         if not db_obj:
-            return  # ou lance uma exceção se preferir
+            return  
 
         self.session.delete(db_obj)
         self.session.commit()

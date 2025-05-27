@@ -1,17 +1,17 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
+    email: EmailStr = Field(..., example="user@example.com")
+    password: str = Field(..., example="strongpassword123")
 
 class UserRead(BaseModel):
-    id: int
-    email: EmailStr
-    is_admin: bool
+    id: int = Field(..., example=1)
+    email: EmailStr = Field(..., example="user@example.com")
+    is_admin: bool = Field(..., example=False)
 
     class Config:
         orm_mode = True
 
 class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    access_token: str = Field(..., example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    token_type: str = Field("bearer", example="bearer")
