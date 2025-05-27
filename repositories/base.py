@@ -1,17 +1,16 @@
-from typing import TypeVar, Generic, Type
+from typing import TypeVar, Generic, Type, Optional
 from sqlalchemy.orm import Session
 
 ModelType = TypeVar("ModelType")
 
 class BaseRepository(Generic[ModelType]):
-
     def __init__(self, model: Type[ModelType], session: Session):
         self.model = model
         self.session = session
     
-    def get(self, id: int) -> ModelType | None:
+    def get(self, id: int) -> Optional[ModelType]:
         return self.session.query(self.model).filter(self.model.id == id).first()
-    
+
     def get_all(self) -> list[ModelType]:
         return self.session.query(self.model).all()
     
@@ -21,23 +20,22 @@ class BaseRepository(Generic[ModelType]):
         self.session.refresh(obj_in)
         return obj_in
     
-    def update(self, db_obj: ModelType, obj_in: dict) -> ModelType:
-        for key, value in obj_in.items():
-             setattr(db_obj, key, value)
-        self.session.commit()
-        self.session.refresh(db_obj)
-        return db_obj
-    
-    def update_by_id(self, id: int, obj_in: dict) -> ModelType:
-        db_obj = self.get(id)
+    def update(self, id: int, obj_in: dict) -> Optional[ModelType]:
+        db_obj = self.session.query(self.model).get(id)
         if not db_obj:
-            raise ValueError("Object not found")
+            return None  
+
         for key, value in obj_in.items():
             setattr(db_obj, key, value)
+
         self.session.commit()
         self.session.refresh(db_obj)
         return db_obj
-    
-    def delete(self, db_obj: ModelType) -> None:
+
+    def delete(self, id: int) -> None:
+        db_obj = self.session.query(self.model).get(id)
+        if not db_obj:
+            return  # ou lance uma exceção se preferir
+
         self.session.delete(db_obj)
         self.session.commit()

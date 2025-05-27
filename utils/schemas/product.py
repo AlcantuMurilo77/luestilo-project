@@ -31,3 +31,6 @@ class ProductRead(BaseModel):
     images: Optional[str]
 
     model_config = ConfigDict(from_attributes=True)
+
+class ProductUpdate(ProductCreate):
+    pass

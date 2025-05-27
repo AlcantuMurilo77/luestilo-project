@@ -64,7 +64,12 @@ class Order(Base):
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     client = relationship("Client", back_populates="orders")
-    products = relationship("OrderProduct", back_populates="order")
+    products = relationship(
+        "OrderProduct",
+        back_populates="order",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
 
 class OrderProduct(Base):
     __tablename__ = "order_products"

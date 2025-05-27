@@ -1,22 +1,19 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.exc import SQLAlchemyError
-from dotenv import load_dotenv
-load_dotenv(".env", override=True)
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from utils.config import Config
 
+# for attempt in range(1, MAX_RETRIES + 1):
 try:
     engine = create_engine(Config.url, echo=False)
-
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
-    
     SessionLocal = scoped_session(sessionmaker(bind=engine, autoflush=False, autocommit=False))
-
-except SQLAlchemyError as e:
-    raise RuntimeError(f"[DB ERROR] Error conecting to PostgresDB: {e}")
+    print("[DB] Connected successfully.")
 except Exception as e:
-    raise RuntimeError(f"[UNEXPECTED ERROR] Unexpected error on initializing engie: {e}")
+    raise RuntimeError(f"[UNEXPECTED ERROR] {e}")
+# else:
+#     raise RuntimeError("[DB ERROR] Could not connect to the database after several attempts.")
 
 def get_db():
     db = SessionLocal()

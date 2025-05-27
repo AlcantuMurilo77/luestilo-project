@@ -12,4 +12,3 @@ COPY . .
 # Comando padrão ao iniciar o container
 EXPOSE 8080
 CMD ["fastapi", "dev", "app/main.py", "--host", "0.0.0.0" ,"--port", "8080"] 
-#CMD ["python", "-m", "fastapi", "dev", "main.py"] 

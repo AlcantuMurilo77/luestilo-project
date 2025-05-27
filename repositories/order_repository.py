@@ -1,43 +1,110 @@
 from sqlalchemy.future import select
-from sqlalchemy.orm import joinedload
-from models.models import Order, OrderProduct
-from repositories.base import BaseRepository
-from datetime import datetime
+from sqlalchemy.orm import joinedload, Session
+from sqlalchemy.exc import IntegrityError
 from typing import Optional, List
 
+from models.models import Order, Product, ProductCategory, ProductSection, OrderProduct
+from app.network.schemas.order import OrderCreate, OrderUpdate
+from repositories.base import BaseRepository
+
 class OrderRepository(BaseRepository[Order]):
-    def __init__(self, session):
+    def __init__(self, session: Session):
         super().__init__(Order, session)
+        self.session = session
 
-    async def get_all(
+    def list(
         self,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        section_id: Optional[int] = None,
-        order_id: Optional[int] = None,
-        status: Optional[str] = None,
-        client_id: Optional[int] = None
+        category_name: Optional[str] = None,
+        section_name: Optional[str] = None,
+        price_min: Optional[float] = None,
+        price_max: Optional[float] = None,
+        available: Optional[bool] = None,
+        skip: int = 0,
+        limit: int = 10,
     ) -> List[Order]:
-        query = select(Order).options(joinedload(Order.products).joinedload(OrderProduct.product))
+        query = self.session.query(Order).join(Order.products).join(OrderProduct.product)
 
-        if order_id:
-            query = query.where(Order.id == order_id)
-        if status:
-            query = query.where(Order.status == status)
-        if client_id:
-            query = query.where(Order.client_id == client_id)
-        if start_date:
-            query = query.where(Order.created_at >= start_date)
-        if end_date:
-            query = query.where(Order.created_at <= end_date)
+        if category_name:
+            query = query.join(Product.category).filter(ProductCategory.name == category_name)
 
-        results = (await self.session.execute(query)).scalars().unique().all()
+        if section_name:
+            query = query.join(Product.section).filter(ProductSection.name == section_name)
+
+        if price_min is not None:
+            query = query.filter(Product.price >= price_min)
+
+        if price_max is not None:
+            query = query.filter(Product.price <= price_max)
+
+        if available is not None:
+            query = query.filter(Product.available == available)
 
 
-        if section_id:
-            results = [
-                order for order in results
-                if any(op.product.section_id == section_id for op in order.products)
-            ]
+        query = query.options(
+                joinedload(Order.products).joinedload(OrderProduct.product),
+                joinedload(Order.client)  
+        )
 
-        return results
+        return query.offset(skip).limit(limit).all()
+
+
+    def get(self, id: int) -> Optional[Order]:
+        return self.session.query(Order).options(
+            joinedload(Order.products).joinedload(OrderProduct.product),
+            joinedload(Order.client)  
+        ).filter(Order.id == id).first()
+
+    def create(self, obj_in: OrderCreate) -> Order:
+        new_order = Order(
+            client_id=obj_in.client_id,
+            status=obj_in.status or "pending",
+        )
+
+        new_order.products = [
+            OrderProduct(
+                product_id=product.product_id,
+                quantity=product.quantity,
+                unit_price=product.unit_price
+            )
+            for product in obj_in.products
+        ]
+
+        self.session.add(new_order)
+        try:
+            self.session.commit()
+            self.session.refresh(new_order)
+            return new_order
+        except IntegrityError as e:
+            self.session.rollback()
+            raise ValueError("Erro ao criar pedido: " + str(e.orig))
+
+    def update_order(self, id: int, obj_in: OrderUpdate) -> Optional[Order]:
+        db_obj = self.get(id)
+        if not db_obj:
+            return None
+
+        data = obj_in.model_dump(exclude_unset=True)
+        products_data = data.pop("products", None)
+
+        # Atualiza os campos simples (client_id, status etc.)
+        for key, value in data.items():
+            if hasattr(db_obj, key):
+                setattr(db_obj, key, value)
+
+        if products_data is not None:
+            # Remove os produtos antigos da ordem
+            db_obj.products.clear()
+
+            # Garante que db_obj.id já foi atribuído
+            self.session.flush()
+
+            # Adiciona os novos produtos
+            for prod_data in products_data:
+                prod_data["order_id"] = db_obj.id  # agora db_obj.id não é None
+                db_obj.products.append(OrderProduct(**prod_data))
+
+        # Comita e atualiza o objeto
+        self.session.commit()
+        self.session.refresh(db_obj)
+        return db_obj
+
