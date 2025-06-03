@@ -112,5 +112,7 @@ Inclui descrições, exemplos de requisições e respostas para todos os endpoin
 
 
 ---
+### A Fazeres
 
+Algumas refaturações fizeram com que os testes não rodassem, logo é necessário refaturar todos os testes. Este é o próximo objetivo deste projeto.
 **Lu Estilo - API para modernizar as vendas e comunicação do time comercial**
